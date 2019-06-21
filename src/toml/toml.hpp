@@ -78,11 +78,7 @@ namespace llparse::toml {
         unknown_error(const char* where)
         : where_(where) {
         }
-        const char* what() const noexcept {
-            static char buffer[64];
-            std::sprintf(buffer, "TOML parse failed: unknown error @%s", where_.c_str());
-            return buffer;
-        }
+        const char* what() const noexcept;
     private:
         std::string where_;
     };
@@ -94,11 +90,7 @@ namespace llparse::toml {
         , where_(where) {
 
         }
-        const char* what() const noexcept {
-            static char buffer[96]; 
-            std::sprintf(buffer, "TOML parse failed: unexpected token (0x%02x => '%c') @%s", token_, token_, where_.c_str());
-            return buffer;
-        }
+        const char* what() const noexcept;
     private:
         std::string where_;
         char token_;

@@ -7,30 +7,30 @@ import { dirname } from "path";
 import { fileURLToPath } from "url";
 
 const ERRORS = Object.fromEntries([
-    "SUCCESS",
-    "UNEXPECTED_TOKEN",
-    "UNKNOWN_ERROR",
+    "ERROR_SUCCESS",
+    "ERROR_UNEXPECTED_TOKEN",
+    "ERROR_UNKNOWN_ERROR",
 ].map((v, i) => [v, i]));
 
 const VALUE_TYPES = Object.fromEntries([
-    "UNKNOWN",
-    "BOOLEAN",
-    "INTEGER",
-    "HEX_INTEGER",
-    "OCT_INTEGER",
-    "BIN_INTEGER",
-    "FLOAT",
-    "INFINITY",
-    "NAN",
-    "BASIC_STRING",
-    "RAW_STRING",
-    "DATE",
+    "VALUE_TYPE_UNKNOWN",
+    "VALUE_TYPE_BOOLEAN",
+    "VALUE_TYPE_INTEGER",
+    "VALUE_TYPE_HEX_INTEGER",
+    "VALUE_TYPE_OCT_INTEGER",
+    "VALUE_TYPE_BIN_INTEGER",
+    "VALUE_TYPE_FLOAT",
+    "VALUE_TYPE_INFINITY",
+    "VALUE_TYPE_NAN",
+    "VALUE_TYPE_BASIC_STRING",
+    "VALUE_TYPE_RAW_STRING",
+    "VALUE_TYPE_DATE",
 ].map((v, i) => [v, i]));
 
 const CONTAINER_TYPES = Object.fromEntries([
-    "TABLE",
-    "ARRAY",
-    "ARRAY_TABLE",
+    "CONTAINER_TYPE_TABLE",
+    "CONTAINER_TYPE_ARRAY",
+    "CONTAINER_TYPE_ARRAY_TABLE",
 ].map((v, i) => [v, i]));
 
 const parser = new llparse.LLParse("toml__internal");
@@ -56,7 +56,7 @@ const  after_prefix_next = parser.node("after_prefix_next");
 const  after_prefix_which = parser.node("after_prefix_which");
 // 字段
 const    before_field = parser.node("before_field");
-const on_before_field = parser.invoke(parser.code.update("value_type", VALUE_TYPES["UNKNOWN"]), before_field);
+const on_before_field = parser.invoke(parser.code.update("value_type", VALUE_TYPES["VALUE_TYPE_UNKNOWN"]), before_field);
 // const        on_field = parser.span(parser.code.span("toml__internal_on_field"));
 const        on_field = on_prefix;
 const           field_quote = parser.node("field_quote");
@@ -73,36 +73,36 @@ const           equal = parser.node("equal");
 const     after_equal = parser.node("after_equal");
 // 值
 const    before_value = parser.node("before_value");
-const on_before_value = parser.invoke(parser.code.update("value_type", VALUE_TYPES["UNKNOWN"]), before_value);
+const on_before_value = parser.invoke(parser.code.update("value_type", VALUE_TYPES["VALUE_TYPE_UNKNOWN"]), before_value);
 const        on_value = parser.span(parser.code.span("toml__internal_on_value"));
 // 值 - 无分隔符
 const           value_unknown = parser.node("value_unknown");
 const           value_boolean = parser.node("value_boolean");
-const        on_value_boolean = parser.invoke(parser.code.update("value_type", VALUE_TYPES["BOOLEAN"]), value_boolean);
+const        on_value_boolean = parser.invoke(parser.code.update("value_type", VALUE_TYPES["VALUE_TYPE_BOOLEAN"]), value_boolean);
 const           value_integer = parser.node("value_integer");
-const        on_value_integer = parser.invoke(parser.code.update("value_type", VALUE_TYPES["INTEGER"]), value_integer);
+const        on_value_integer = parser.invoke(parser.code.update("value_type", VALUE_TYPES["VALUE_TYPE_INTEGER"]), value_integer);
 const           value_hex_integer = parser.node("value_hex_integer");
-const        on_value_hex_integer = parser.invoke(parser.code.update("value_type", VALUE_TYPES["HEX_INTEGER"]), value_hex_integer);
+const        on_value_hex_integer = parser.invoke(parser.code.update("value_type", VALUE_TYPES["VALUE_TYPE_HEX_INTEGER"]), value_hex_integer);
 const           value_oct_integer = parser.node("value_oct_integer");
-const        on_value_oct_integer = parser.invoke(parser.code.update("value_type", VALUE_TYPES["OCT_INTEGER"]), value_oct_integer);
+const        on_value_oct_integer = parser.invoke(parser.code.update("value_type", VALUE_TYPES["VALUE_TYPE_OCT_INTEGER"]), value_oct_integer);
 const           value_bin_integer = parser.node("value_bin_integer");
-const        on_value_bin_integer = parser.invoke(parser.code.update("value_type", VALUE_TYPES["BIN_INTEGER"]), value_bin_integer);
+const        on_value_bin_integer = parser.invoke(parser.code.update("value_type", VALUE_TYPES["VALUE_TYPE_BIN_INTEGER"]), value_bin_integer);
 const           value_float = parser.node("value_float")
-const        on_value_float = parser.invoke(parser.code.update("value_type", VALUE_TYPES["FLOAT"]), value_float);
+const        on_value_float = parser.invoke(parser.code.update("value_type", VALUE_TYPES["VALUE_TYPE_FLOAT"]), value_float);
 const           value_infinite = parser.node("value_infinite");
-const        on_value_infinite = parser.invoke(parser.code.update("value_type", VALUE_TYPES["INFINITY"]), value_infinite);
+const        on_value_infinite = parser.invoke(parser.code.update("value_type", VALUE_TYPES["VALUE_TYPE_INFINITY"]), value_infinite);
 const           value_date = parser.node("value_date");
-const        on_value_date = parser.invoke(parser.code.update("value_type", VALUE_TYPES["DATE"]), value_date);
+const        on_value_date = parser.invoke(parser.code.update("value_type", VALUE_TYPES["VALUE_TYPE_DATE"]), value_date);
 const     after_value_date = parser.node("after_value_date");
 // 值 - 有分隔符
 const    before_value_basic_string = parser.node("before_value_basic_string");
-const on_before_value_basic_string = parser.invoke(parser.code.update("value_type", VALUE_TYPES["BASIC_STRING"]), before_value_basic_string);
+const on_before_value_basic_string = parser.invoke(parser.code.update("value_type", VALUE_TYPES["VALUE_TYPE_BASIC_STRING"]), before_value_basic_string);
 const           value_basic_string = parser.node("value_basic_string");
 const     after_value_basic_string = parser.node("after_value_basic_string");
 const           value_multi_basic_string = parser.node("value_multi_basic_string");
 const     after_value_multi_basic_string = parser.node("after_value_multi_basic_string");
 const    before_value_raw_string = parser.node("before_value_raw_string");
-const on_before_value_raw_string =  parser.invoke(parser.code.update("value_type", VALUE_TYPES["RAW_STRING"]), before_value_raw_string);
+const on_before_value_raw_string =  parser.invoke(parser.code.update("value_type", VALUE_TYPES["VALUE_TYPE_RAW_STRING"]), before_value_raw_string);
 const           value_raw_string = parser.node("value_raw_string");
 const     after_value_raw_string = parser.node("after_value_raw_string");
 const           value_multi_raw_string = parser.node("value_multi_raw_string");
@@ -110,15 +110,15 @@ const     after_value_multi_raw_string = parser.node("after_value_multi_raw_stri
 // 结束
 const     after_value_expect_field = parser.node("after_value_expect_field");
 const     after_value_expect_value = parser.node("after_value_expect_value");
-const  on_after_value_which = parser.invoke(parser.code.load("container_type"), {2: after_value_expect_field, 1: after_value_expect_value, 0: after_value_expect_field}, E("UNKNOWN_ERROR", "after_value"));
+const  on_after_value_which = parser.invoke(parser.code.load("container_type"), {2: after_value_expect_field, 1: after_value_expect_value, 0: after_value_expect_field}, E("ERROR_UNKNOWN_ERROR", "after_value"));
 const  on_after_value = parser.invoke(parser.code.match("toml__internal_on_after_value"), on_after_value_which);
 
 // 容器 数组、表格 层级关系处理
-const     on_cstart_array = parser.invoke(parser.code.update("container_type", CONTAINER_TYPES["ARRAY"]),
+const     on_cstart_array = parser.invoke(parser.code.update("container_type", CONTAINER_TYPES["CONTAINER_TYPE_ARRAY"]),
     parser.invoke(parser.code.match("toml__internal_on_entry_push"), on_before_value));
-const     on_cstart_table = parser.invoke(parser.code.update("container_type", CONTAINER_TYPES["TABLE"]),
+const     on_cstart_table = parser.invoke(parser.code.update("container_type", CONTAINER_TYPES["CONTAINER_TYPE_TABLE"]),
     parser.invoke(parser.code.match("toml__internal_on_entry_push"), on_before_field));
-const     on_cstart_array_table = parser.invoke(parser.code.update("container_type", CONTAINER_TYPES["ARRAY_TABLE"]),
+const     on_cstart_array_table = parser.invoke(parser.code.update("container_type", CONTAINER_TYPES["CONTAINER_TYPE_ARRAY_TABLE"]),
     parser.invoke(parser.code.match("toml__internal_on_entry_push"), on_before_field));
 // const before_cfinish = parser.node("before_cfinish");
 const     on_cfinish = parser.invoke(parser.code.match("toml__internal_on_entry_pop"), on_after_value_which); // on_entry_pop 需要维护, 不再调用 on_after_value
@@ -135,13 +135,13 @@ type_prefix
 
 before_prefix
     // .skipTo(comment_expect_field)
-    .peek(["#", "]"], E("UNEXPECTED_TOKEN", "before_prefix"))
+    .peek(["#", "]"], E("ERROR_UNEXPECTED_TOKEN", "before_prefix"))
     .match([" ", "\t"], before_prefix)
     .match('"', on_prefix.start(prefix_quote)) // on_prefix 实际上与 on_field 是同一个 SPAN , 区别在 cstart 后的转换过程
     .otherwise(on_prefix.start(prefix_basic));
 
 prefix_basic
-    .peek(["#", "\r", "\n"], E("UNEXPECTED_TOKEN", "prefix_basic"))
+    .peek(["#", "\r", "\n"], E("ERROR_UNEXPECTED_TOKEN", "prefix_basic"))
     .peek([".", " ", "\t", "]"], on_prefix.end(after_prefix))
     .skipTo(prefix_basic);
 
@@ -153,7 +153,7 @@ after_prefix
     .match([" ", "\t", "\r", "\n"], after_prefix)
     .peek("]", after_prefix_which)
     .peek('.', on_prefix.start(after_prefix_next))
-    .otherwise(E("UNEXPECTED_TOKEN", "after_prefix"));
+    .otherwise(E("ERROR_UNEXPECTED_TOKEN", "after_prefix"));
 
 after_prefix_which
     .match("]]", on_cstart_array_table)
@@ -200,19 +200,19 @@ after_field_expect_field
 // 符号
 // --------------------------------------------------------------------------------
 before_equal
-    .peek(["\r", "\n"], E("UNEXPECTED_TOKEN", "before_equal")) // 不允许出现此种情况 AAAA \n = BBBBB
+    .peek(["\r", "\n"], E("ERROR_UNEXPECTED_TOKEN", "before_equal")) // 不允许出现此种情况 AAAA \n = BBBBB
     .match([" ", "\t"], before_equal)
     .peek("#", comment_expect_equal)
     .otherwise(equal);
 
 equal
     .match("=", after_equal)
-    .otherwise(E("UNEXPECTED_TOKEN", "equal"));
+    .otherwise(E("ERROR_UNEXPECTED_TOKEN", "equal"));
 
 after_equal
     .match([" ", "\t"], after_equal)
     .peek("#", comment_expect_value)
-    .peek(["\r", "\n"], E("UNEXPECTED_TOKEN", "after_equal"))
+    .peek(["\r", "\n"], E("ERROR_UNEXPECTED_TOKEN", "after_equal"))
     .otherwise(before_value);
 
 // 值
@@ -220,7 +220,7 @@ after_equal
 
 before_value
     .match([" ", "\t"], before_value)
-    .peek(["\r", "\n"], E("UNEXPECTED_TOKEN", "before_value"))
+    .peek(["\r", "\n"], E("ERROR_UNEXPECTED_TOKEN", "before_value"))
     // 0 比较特别（0x/0o/0b)
     .match("+", on_value.start(on_value_integer))
     .peek(["-", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"], on_value.start(on_value_integer))
@@ -241,7 +241,7 @@ value_unknown
 
 value_boolean
     .match(["true", "false"], on_value.end(on_after_value))
-    .otherwise(E("UNEXPECTED_TOKEN", "value_boolean"));
+    .otherwise(E("ERROR_UNEXPECTED_TOKEN", "value_boolean"));
 
 value_integer
     .peek([",", "]", "}", " ", "\t", "#", "\r", "\n"], on_value.end(on_after_value))
@@ -295,12 +295,12 @@ before_value_basic_string
 
 value_basic_string
     .peek('"', on_value.end(after_value_basic_string))
-    .peek(["\r", "\n"], E("UNEXPECTED_TOKEN", "value_basic_string"))
+    .peek(["\r", "\n"], E("ERROR_UNEXPECTED_TOKEN", "value_basic_string"))
     .skipTo(value_basic_string);
 
 after_value_basic_string
     .match('"', on_after_value)
-    .otherwise(E("UNEXPECTED_TOKEN", "after_value_basic_string"));
+    .otherwise(E("ERROR_UNEXPECTED_TOKEN", "after_value_basic_string"));
 
 value_multi_basic_string
     .peek('"', on_value.end(after_value_multi_basic_string)) // 暂停解析，但有可能恢复
@@ -320,7 +320,7 @@ value_raw_string
 
 after_value_raw_string
     .match("'", on_after_value)
-    .otherwise(E("UNEXPECTED_TOKEN", "after_value_raw_string"));
+    .otherwise(E("ERROR_UNEXPECTED_TOKEN", "after_value_raw_string"));
 
 value_multi_raw_string
     .peek("'", on_value.end(after_value_multi_raw_string)) // 暂停解析，但有可能恢复
@@ -331,16 +331,16 @@ after_value_multi_raw_string
     .otherwise(on_value.start(value_multi_raw_string)); // 未匹配结束符，恢复
 
 after_value_expect_field
-    .match([",", " ", "\t", "\cfinish"], after_value_expect_field) // 不允许在 value 后继续定义 field 必须换行
+    .match([",", " ", "\t", "\r", "\n"], after_value_expect_field) // 不允许在 value 后继续定义 field 必须换行
     .match(["}"/*, "]"*/], on_cfinish) // 容器结束，需要回到上一层
-    .peek("]", E("UNEXPECTED_TOKEN", "after_value"))
+    .peek("]", E("ERROR_UNEXPECTED_TOKEN", "after_value"))
     .peek("#", comment_expect_field)
     .otherwise(on_before_field);
 
 after_value_expect_value
-    .match([",", " ", "\t", "\cfinish"], after_value_expect_value)
+    .match([",", " ", "\t", "\r", "\n"], after_value_expect_value)
     .match([/*"}",*/ "]"], on_cfinish) // 容器结束，需要回到上一层
-    .peek("}", E("UNEXPECTED_TOKEN", "after_value"))
+    .peek("}", E("ERROR_UNEXPECTED_TOKEN", "after_value"))
     .peek("#", comment_expect_value)
     .otherwise(on_before_value);
 
@@ -373,13 +373,13 @@ async function constant_header() {
     }
     header += "\t};\n"
 
-    header += "\n\tenum class container_type_t: std::uint8_t {\n";
+    header += "\n\tenum container_type_t: std::uint8_t {\n";
     for(let key in CONTAINER_TYPES) {
         header += "\t\t" + key.padEnd(16) + " = " + CONTAINER_TYPES[key] + ",\n";
     }
     header += "\t};\n";
 
-    header += "\n\tenum class value_type_t: std::uint8_t {\n";
+    header += "\n\tenum value_type_t: std::uint8_t {\n";
     for(let key in VALUE_TYPES) {
         header += "\t\t" + key.padEnd(16) + " = " + VALUE_TYPES[key] + ",\n";
     }

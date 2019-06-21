@@ -60,14 +60,14 @@ extern "C" {
         // std::cout << "> on_entry1: << " << self->prefix_ << "\n";
         self->prefix_.push_back('.');
         self->prefix_.append(self->field_.empty() ? "#" : self->field_);
-        if(s->container_type == (std::uint8_t) llparse::toml::container_type_t::ARRAY_TABLE) {
+        if(s->container_type == (std::uint8_t) llparse::toml::CONTAINER_TYPE_ARRAY_TABLE) {
             self->prefix_.append(".#");
         }
         self->field_.clear();
-        if(self->container_.back() == (std::uint8_t) llparse::toml::container_type_t::ARRAY 
-            && s->container_type == (std::uint8_t) llparse::toml::container_type_t::TABLE) {
-            self->container_.push_back((std::uint8_t) llparse::toml::container_type_t::ARRAY_TABLE);
-            s->container_type = (std::uint8_t) llparse::toml::container_type_t::ARRAY_TABLE;
+        if(self->container_.back() == (std::uint8_t) llparse::toml::CONTAINER_TYPE_ARRAY 
+            && s->container_type == (std::uint8_t) llparse::toml::CONTAINER_TYPE_TABLE) {
+            self->container_.push_back((std::uint8_t) llparse::toml::CONTAINER_TYPE_ARRAY_TABLE);
+            s->container_type = (std::uint8_t) llparse::toml::CONTAINER_TYPE_ARRAY_TABLE;
         }else{
             self->container_.push_back(s->container_type);
         }
@@ -97,14 +97,14 @@ namespace llparse::toml {
     : setting_(setting) {
         toml__internal_init(&parser_);
         parser_.data = this;
-        container_.push_back((std::uint8_t) llparse::toml::container_type_t::TABLE);
+        container_.push_back((std::uint8_t) llparse::toml::CONTAINER_TYPE_TABLE);
     }
 
     void parser::parse(std::string_view str) {
         switch(toml__internal_execute(&parser_, str.data(), str.data() + str.size())) {
-        case error_t::SUCCESS:
+        case ERROR_SUCCESS:
             break;
-        case error_t::UNEXPECTED_TOKEN:
+        case ERROR_UNEXPECTED_TOKEN:
             throw unexpected_token(parser_.error_pos[0], parser_.reason);
         default:
             throw unknown_error(parser_.reason);
@@ -130,5 +130,18 @@ namespace llparse::toml {
 
     std::uint8_t parser::value_type() const noexcept  {
         return parser_.value_type;
+    }
+
+
+    const char* unknown_error::what() const noexcept {
+        static char buffer[64];
+        std::sprintf(buffer, "TOML parse failed: unknown error @%s", where_.c_str());
+        return buffer;
+    }
+
+    const char* unexpected_token::what() const noexcept {
+        static char buffer[96]; 
+        std::sprintf(buffer, "TOML parse failed: unexpected token (0x%02x => '%c') @%s", token_, token_, where_.c_str());
+        return buffer;
     }
 }
