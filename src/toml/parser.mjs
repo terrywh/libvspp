@@ -22,9 +22,9 @@ const VALUE_TYPES = Object.fromEntries([
     "VALUE_TYPE_FLOAT",
     "VALUE_TYPE_INFINITY",
     "VALUE_TYPE_NAN",
+    "VALUE_TYPE_DATE",
     "VALUE_TYPE_BASIC_STRING",
     "VALUE_TYPE_RAW_STRING",
-    "VALUE_TYPE_DATE",
 ].map((v, i) => [v, i]));
 
 const CONTAINER_TYPES = Object.fromEntries([
@@ -100,6 +100,7 @@ const on_before_value_basic_string = parser.invoke(parser.code.update("value_typ
 const           value_basic_string = parser.node("value_basic_string");
 const     after_value_basic_string = parser.node("after_value_basic_string");
 const           value_multi_basic_string = parser.node("value_multi_basic_string");
+const           value_multi_basic_string_concat = parser.node("value_multi_basic_string");
 const     after_value_multi_basic_string = parser.node("after_value_multi_basic_string");
 const    before_value_raw_string = parser.node("before_value_raw_string");
 const on_before_value_raw_string =  parser.invoke(parser.code.update("value_type", VALUE_TYPES["VALUE_TYPE_RAW_STRING"]), before_value_raw_string);
@@ -304,7 +305,13 @@ after_value_basic_string
 
 value_multi_basic_string
     .peek('"', on_value.end(after_value_multi_basic_string)) // 暂停解析，但有可能恢复
+    .peek("\\", on_value.end(value_multi_basic_string_concat)) // 分行书写长文本
     .skipTo(value_multi_basic_string);
+
+value_multi_basic_string_concat // 用于单行长文本
+    .match("\\\r\n", on_value.start(value_multi_basic_string))
+    .match("\\\n", on_value.start(value_multi_basic_string))
+    .otherwise(on_value.start(value_multi_basic_string))
 
 after_value_multi_basic_string
     .match('"""', on_after_value)
@@ -394,7 +401,10 @@ async function build() {
         "header": "parser",
     }});
     await fs.writeFile(__dirname + "/parser.h", art.header);
-    await fs.writeFile(__dirname + "/parser.c", art.c);
+    // XXXXXX 兼容 '\' 生成的代码错误问题
+    let code = art.c.replace(/'\\':/mg, "92:");
+
+    await fs.writeFile(__dirname + "/parser.c", code);
     await constant_header();
     console.log("parser source and constant header generated.");
 }

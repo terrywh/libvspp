@@ -5,9 +5,9 @@ VERSION=1.0.0
 
 CXX?=g++
 AR?=ar
-CFLAGS?= -g -O0
+CFLAGS?= -g -O2 -DNDEBUG
 CFLAGS+= -fPIC -std=c11
-CXXFLAGS?= -g -O0
+CXXFLAGS?= -g -O2 -DNDEBUG
 CXXFLAGS+= -fPIC -std=c++17
 
 TESTORS_SOURCES := $(wildcard ./test/*.cpp)
