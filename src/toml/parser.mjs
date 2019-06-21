@@ -98,11 +98,13 @@ const     after_value_date = parser.node("after_value_date");
 const    before_value_basic_string = parser.node("before_value_basic_string");
 const on_before_value_basic_string = parser.invoke(parser.code.update("value_type", VALUE_TYPES["BASIC_STRING"]), before_value_basic_string);
 const           value_basic_string = parser.node("value_basic_string");
+const     after_value_basic_string = parser.node("after_value_basic_string");
 const           value_multi_basic_string = parser.node("value_multi_basic_string");
 const     after_value_multi_basic_string = parser.node("after_value_multi_basic_string");
 const    before_value_raw_string = parser.node("before_value_raw_string");
 const on_before_value_raw_string =  parser.invoke(parser.code.update("value_type", VALUE_TYPES["RAW_STRING"]), before_value_raw_string);
 const           value_raw_string = parser.node("value_raw_string");
+const     after_value_raw_string = parser.node("after_value_raw_string");
 const           value_multi_raw_string = parser.node("value_multi_raw_string");
 const     after_value_multi_raw_string = parser.node("after_value_multi_raw_string");
 // 结束
@@ -227,8 +229,8 @@ before_value
     .match("[", on_cstart_array)
     .match("{", on_cstart_table)
     // 待确认是否未多行文本
-    .match('"', on_before_value_basic_string)
-    .match("'", on_before_value_raw_string)
+    .peek('"', on_before_value_basic_string)
+    .peek("'", on_before_value_raw_string)
     .peek("#", comment_expect_value)
     .otherwise(on_value.start(value_unknown))
 
@@ -288,13 +290,17 @@ after_value_date
 // 值 - 分隔符
 // ----------------------------------------------------------------------------------------------------
 before_value_basic_string
-    .match('""', on_value.start(value_multi_basic_string))
-    .otherwise(on_value.start(value_basic_string))
+    .match('"""', on_value.start(value_multi_basic_string))
+    .skipTo(on_value.start(value_basic_string)); // '"'
 
 value_basic_string
-    .peek('"', on_value.end(on_after_value))
+    .peek('"', on_value.end(after_value_basic_string))
     .peek(["\r", "\n"], E("UNEXPECTED_TOKEN", "value_basic_string"))
     .skipTo(value_basic_string);
+
+after_value_basic_string
+    .match('"', on_after_value)
+    .otherwise(E("UNEXPECTED_TOKEN", "after_value_basic_string"));
 
 value_multi_basic_string
     .peek('"', on_value.end(after_value_multi_basic_string)) // 暂停解析，但有可能恢复
@@ -305,12 +311,16 @@ after_value_multi_basic_string
     .otherwise(on_value.start(value_multi_basic_string)); // 未匹配结束符，恢复
 
 before_value_raw_string
-    .match("''", on_value.start(value_multi_raw_string))
-    .otherwise(on_value.start(value_raw_string))
+    .match("'''", on_value.start(value_multi_raw_string))
+    .skipTo(on_value.start(value_raw_string)); // "'"
 
 value_raw_string
-    .peek("'", on_value.end(on_after_value))
+    .peek("'", on_value.end(after_value_raw_string))
     .skipTo(value_raw_string);
+
+after_value_raw_string
+    .match("'", on_after_value)
+    .otherwise(E("UNEXPECTED_TOKEN", "after_value_raw_string"));
 
 value_multi_raw_string
     .peek("'", on_value.end(after_value_multi_raw_string)) // 暂停解析，但有可能恢复
