@@ -1,0 +1,7 @@
+.vscode
+node_modules
+src/*/*.h
+src/*/*.c
+stage
+debug
+release
