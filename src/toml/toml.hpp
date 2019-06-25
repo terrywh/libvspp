@@ -48,17 +48,19 @@ namespace llparse::toml {
         parser(const parser_setting_t& setting) noexcept;
         void parse(std::string_view str);
         void reset();
-        std::string_view prefix() const noexcept;
+        std::string     prefix() const noexcept;
         std::string_view field() const noexcept;
         std::uint8_t     container_type() const noexcept;
         std::uint8_t     value_type() const noexcept;
+        std::uint32_t    array_index() const noexcept;
     private:
         toml__internal_t parser_;
         parser_setting_t setting_;
         
-        std::string prefix_ = "$";
+        std::vector<std::string>     prefix_;
         std::string field_;
         std::vector<std::uint8_t> container_;
+        std::vector<std::uint32_t>    index_;
         // 前缀
         friend int ::toml__internal_on_section(toml__internal_t* s, const unsigned char* p, const unsigned char* endp);
         // 字段

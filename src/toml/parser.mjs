@@ -43,6 +43,7 @@ function E(name, where) {
 // 属性
 parser.property("i8", "value_type");
 parser.property("i8", "container_type");
+parser.property("i32", "array_index");
 // 初始
 // 前缀
 const   type_prefix = parser.node("before_prefix_table");
@@ -123,7 +124,7 @@ const     on_cstart_array_table = parser.invoke(parser.code.update("container_ty
     parser.invoke(parser.code.match("toml__internal_on_entry_push"), on_before_field));
 // const before_cfinish = parser.node("before_cfinish");
 const     on_cfinish = parser.invoke(parser.code.match("toml__internal_on_entry_pop"), on_after_value_which); // on_entry_pop 需要维护, 不再调用 on_after_value
-
+const     on_cfinish_before_field = parser.invoke(parser.code.match("toml__internal_on_entry_pop"), on_before_field); // on_entry_pop 需要维护，下一个节马上开始
 // 注释
 const comment_expect_field = parser.node("begin_comment_expect_field");
 const comment_expect_equal = parser.node("begin_comment_expect_equal");
@@ -342,6 +343,7 @@ after_value_expect_field
     .match(["}"/*, "]"*/], on_cfinish) // 容器结束，需要回到上一层
     .peek("]", E("ERROR_UNEXPECTED_TOKEN", "after_value"))
     .peek("#", comment_expect_field)
+    .peek("[", on_cfinish_before_field)
     .otherwise(on_before_field);
 
 after_value_expect_value
@@ -349,6 +351,7 @@ after_value_expect_value
     .match([/*"}",*/ "]"], on_cfinish) // 容器结束，需要回到上一层
     .peek("}", E("ERROR_UNEXPECTED_TOKEN", "after_value"))
     .peek("#", comment_expect_value)
+    // .peek("[", on_cfinish_before_field)
     .otherwise(on_before_value);
 
 // 注释

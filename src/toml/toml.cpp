@@ -1,10 +1,11 @@
 #include "toml.hpp"
 #include <cstdio>
-#ifndef NDEBUG
-    #include <iostream>
-#endif
 #include <string_view>
 #include "error.h"
+
+#ifndef NDEBUG
+#include <iostream>
+#endif
 
 extern "C" {
     // 前缀
@@ -13,6 +14,8 @@ extern "C" {
     int toml__internal_on_section(toml__internal_t* s, const unsigned char* p, const unsigned char* endp) {
         auto * self = static_cast<llparse::toml::parser*>(s->data);
         self->prefix_.resize(1);
+        self->index_.resize(1);
+        s->array_index = self->index_.back();
 #ifndef NDEBUG
         std::cout << "> on_prefix_start\n";
 #endif
@@ -37,9 +40,6 @@ extern "C" {
         const auto * self = static_cast<llparse::toml::parser*>(s->data);
         if(endp > p) {
             if(self->setting_.on_value) self->setting_.on_value(*self, {(const char*) p, static_cast<std::size_t>(endp - p)});
-#ifndef NDEBUG
-            std::cout << "> on_value => [" << std::string_view { (const char*) p, static_cast<std::size_t>(endp - p) } << "]\n";
-#endif
         }
         
         return 0;
@@ -47,10 +47,8 @@ extern "C" {
     int toml__internal_on_after_value(toml__internal_t* s, const unsigned char* p, const unsigned char* endp) {
         auto * self = static_cast<llparse::toml::parser*>(s->data);
         if(self->setting_.on_after_value) self->setting_.on_after_value(*self);
-#ifndef NDEBUG
-        std::cout << "> on_after_value: " << (int) s->container_type << "/" << (int)s->value_type << "\n";
-#endif
         self->field_.clear();
+        if(s->container_type == llparse::toml::CONTAINER_TYPE_ARRAY) s->array_index = ++self->index_.back();
         return 0;
     }
     // 层级关系
@@ -58,21 +56,25 @@ extern "C" {
     int toml__internal_on_entry_push(toml__internal_t* s, const unsigned char* p, const unsigned char* endp) {
         auto * self = static_cast<llparse::toml::parser*>(s->data);
         // std::cout << "> on_entry1: << " << self->prefix_ << "\n";
-        self->prefix_.push_back('.');
-        self->prefix_.append(self->field_.empty() ? "#" : self->field_);
-        if(s->container_type == (std::uint8_t) llparse::toml::CONTAINER_TYPE_ARRAY_TABLE) {
-            self->prefix_.append(".#");
-        }
+        if(self->field_.empty()) self->field_.assign("#");
+        else if(s->container_type == (std::uint8_t) llparse::toml::CONTAINER_TYPE_ARRAY_TABLE) self->field_.append(".#");
+        self->prefix_.push_back(self->field_);
+        
         self->field_.clear();
-        if(self->container_.back() == (std::uint8_t) llparse::toml::CONTAINER_TYPE_ARRAY 
-            && s->container_type == (std::uint8_t) llparse::toml::CONTAINER_TYPE_TABLE) {
-            self->container_.push_back((std::uint8_t) llparse::toml::CONTAINER_TYPE_ARRAY_TABLE);
-            s->container_type = (std::uint8_t) llparse::toml::CONTAINER_TYPE_ARRAY_TABLE;
-        }else{
-            self->container_.push_back(s->container_type);
+        if(self->container_.back() == (std::uint8_t) llparse::toml::CONTAINER_TYPE_ARRAY) {
+            if(s->container_type == (std::uint8_t) llparse::toml::CONTAINER_TYPE_TABLE) {
+                s->container_type = (std::uint8_t) llparse::toml::CONTAINER_TYPE_ARRAY_TABLE;
+            }
         }
+        // 开始一个 ARRAY 节
+        if(s->container_type == (std::uint8_t) llparse::toml::CONTAINER_TYPE_ARRAY) {
+            self->index_.back() = s->array_index;
+            s->array_index = 0;
+            self->index_.push_back(s->array_index);
+        }
+        self->container_.push_back(s->container_type);
 #ifndef NDEBUG
-        std::cout << "> on_entry2: << " << self->prefix_ << "\n";
+        std::cout << "> on_entry2: << " << (int) s->container_type << " " << self->prefix_ << "\n";
 #endif
         return 0;
     }
@@ -80,11 +82,22 @@ extern "C" {
     int toml__internal_on_entry_pop(toml__internal_t* s, const unsigned char* p, const unsigned char* endp) {
         auto * self = static_cast<llparse::toml::parser*>(s->data);
         // std::cout << "> on_after_entry1: << " << (int)s->container_type << "/" << (int)s->value_type << " (" << self->prefix_ << ")\n";
-        self->prefix_.resize(self->prefix_.find_last_of("."));
+        self->prefix_.pop_back();
+        std::uint8_t ct = self->container_.back();
         self->container_.pop_back();
+        
         s->container_type = self->container_.back();
+        // 结束的了一个 array 节
+        if(ct == llparse::toml::CONTAINER_TYPE_ARRAY) {
+            self->index_.pop_back();
+            s->array_index = self->index_.back();
+        }
+        if(s->container_type == llparse::toml::CONTAINER_TYPE_ARRAY || // 本节结束后上层是一个 array 节
+            ct == llparse::toml::CONTAINER_TYPE_ARRAY_TABLE) { // 本节 array_table 结束
+            s->array_index = ++self->index_.back();
+        }
 #ifndef NDEBUG
-        std::cout << "> on_after_entry2: << " << (int)s->container_type << "/" << (int)s->value_type << " (" << self->prefix_ << ")\n";
+        std::cout << "> on_after_entry2: << #" << s->array_index << " " << (int)s->container_type << "/" << (int)s->value_type << " (" << self->prefix() << ")\n";
 #endif
         return 0;
     }
@@ -97,7 +110,11 @@ namespace llparse::toml {
     : setting_(setting) {
         toml__internal_init(&parser_);
         parser_.data = this;
-        container_.push_back((std::uint8_t) llparse::toml::CONTAINER_TYPE_TABLE);
+        parser_.container_type = llparse::toml::CONTAINER_TYPE_TABLE;
+        parser_.array_index = 0;
+        prefix_.push_back("$");
+        container_.push_back((std::uint8_t) parser_.container_type);
+        index_.push_back((std::uint32_t) parser_.array_index);
     }
 
     void parser::parse(std::string_view str) {
@@ -116,8 +133,13 @@ namespace llparse::toml {
         container_.resize(1);
     }
 
-    std::string_view parser::prefix() const noexcept  {
-        return {prefix_.data(), prefix_.size()};
+    std::string parser::prefix() const noexcept  {
+        std::string pre = prefix_[0];
+        for(int i=1;i<prefix_.size();++i) {
+            pre.push_back('.');
+            pre.append(prefix_[i]);
+        }
+        return pre;
     }
 
     std::string_view parser::field() const noexcept  {
@@ -132,6 +154,9 @@ namespace llparse::toml {
         return parser_.value_type;
     }
 
+    std::uint32_t parser::array_index() const noexcept  {
+        return parser_.array_index;
+    }
 
     const char* unknown_error::what() const noexcept {
         static char buffer[64];
