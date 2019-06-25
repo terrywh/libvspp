@@ -401,10 +401,7 @@ async function build() {
         "header": "parser",
     }});
     await fs.writeFile(__dirname + "/parser.h", art.header);
-    // XXXXXX 兼容 '\' 生成的代码错误问题
-    let code = art.c.replace(/'\\':/mg, "92:");
-
-    await fs.writeFile(__dirname + "/parser.c", code);
+    await fs.writeFile(__dirname + "/parser.c", art.c);
     await constant_header();
     console.log("parser source and constant header generated.");
 }

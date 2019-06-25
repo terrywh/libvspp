@@ -5,6 +5,7 @@ VERSION=1.0.0
 
 CXX?=g++
 AR?=ar
+NODE?=/data/server/node/bin/node
 CFLAGS?= -g -O2 -DNDEBUG
 CFLAGS+= -fPIC -std=c11
 CXXFLAGS?= -g -O2 -DNDEBUG
@@ -51,7 +52,7 @@ install:
 ./${ENVIRON}/%.cpp.o: ./src/%.cpp | ${ENVIRON}
 	${CXX} ${CXXFLAGS} -c -o $@ $^
 ./src/%.c: ./src/%.mjs
-	/data/vendor/node-12.3.1/bin/node --experimental-modules $^
+	${NODE} --experimental-modules $^
 
 ./${ENVIRON}/%.test: ./test/%.cpp ${OBJECTS} | ${ENVIRON}
 	${CXX} ${CXXFLAGS} -o $@ $^

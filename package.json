@@ -9,6 +9,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "llparse": "^6.0.1"
+    "llparse": "^6.0.2"
   }
 }
