@@ -48,11 +48,9 @@ namespace llparse::toml {
         parser(const parser_setting_t& setting) noexcept;
         void parse(std::string_view str);
         void reset();
-        std::string     prefix() const noexcept;
-        std::string_view field() const noexcept;
-        std::uint8_t     container_type() const noexcept;
-        std::uint8_t     value_type() const noexcept;
-        std::uint32_t    array_index() const noexcept;
+        std::string     field() const noexcept;
+        std::uint8_t    value_type() const noexcept;
+        std::uint32_t   value_array_index() const noexcept;
     private:
         toml__internal_t parser_;
         parser_setting_t setting_;

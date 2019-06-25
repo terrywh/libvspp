@@ -6,9 +6,9 @@ VERSION=1.0.0
 CXX?=g++
 AR?=ar
 NODE?=/data/server/node/bin/node
-CFLAGS?= -g -O2 -DNDEBUG
+CFLAGS?= -g -O0
 CFLAGS+= -fPIC -std=c11
-CXXFLAGS?= -g -O2 -DNDEBUG
+CXXFLAGS?= -g -O0
 CXXFLAGS+= -fPIC -std=c++17
 
 TESTORS_SOURCES := $(wildcard ./test/*.cpp)

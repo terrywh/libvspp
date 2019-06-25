@@ -3,10 +3,6 @@
 #include <string_view>
 #include "error.h"
 
-#ifndef NDEBUG
-#include <iostream>
-#endif
-
 extern "C" {
     // 前缀
     // ---------------------------------------------------------------------------------------------------------------------
@@ -16,9 +12,6 @@ extern "C" {
         self->prefix_.resize(1);
         self->index_.resize(1);
         s->array_index = self->index_.back();
-#ifndef NDEBUG
-        std::cout << "> on_prefix_start\n";
-#endif
         return 0;
     }
     // 字段
@@ -27,9 +20,6 @@ extern "C" {
         auto * self = static_cast<llparse::toml::parser*>(s->data);
         if(endp > p) {
             self->field_.append((const char*)p, static_cast<std::size_t>(endp - p));
-#ifndef NDEBUG
-            std::cout << "> on_field => [" << std::string_view { (const char*) p, static_cast<std::size_t>(endp - p) } << "]\n";
-#endif
         }
         return 0;
     }
@@ -73,15 +63,11 @@ extern "C" {
             self->index_.push_back(s->array_index);
         }
         self->container_.push_back(s->container_type);
-#ifndef NDEBUG
-        std::cout << "> on_entry2: << " << (int) s->container_type << " " << self->prefix_ << "\n";
-#endif
         return 0;
     }
 
     int toml__internal_on_entry_pop(toml__internal_t* s, const unsigned char* p, const unsigned char* endp) {
         auto * self = static_cast<llparse::toml::parser*>(s->data);
-        // std::cout << "> on_after_entry1: << " << (int)s->container_type << "/" << (int)s->value_type << " (" << self->prefix_ << ")\n";
         self->prefix_.pop_back();
         std::uint8_t ct = self->container_.back();
         self->container_.pop_back();
@@ -96,9 +82,6 @@ extern "C" {
             ct == llparse::toml::CONTAINER_TYPE_ARRAY_TABLE) { // 本节 array_table 结束
             s->array_index = ++self->index_.back();
         }
-#ifndef NDEBUG
-        std::cout << "> on_after_entry2: << #" << s->array_index << " " << (int)s->container_type << "/" << (int)s->value_type << " (" << self->prefix() << ")\n";
-#endif
         return 0;
     }
 
@@ -133,28 +116,29 @@ namespace llparse::toml {
         container_.resize(1);
     }
 
-    std::string parser::prefix() const noexcept  {
+    std::string parser::field() const noexcept  {
         std::string pre = prefix_[0];
         for(int i=1;i<prefix_.size();++i) {
             pre.push_back('.');
             pre.append(prefix_[i]);
         }
+        if(field_.empty()) {
+            if(parser_.container_type == CONTAINER_TYPE_ARRAY) {
+                pre.push_back('.');
+                pre.push_back('#');
+            }
+        }else{
+            pre.push_back('.');
+            pre.append(field_);
+        }
         return pre;
-    }
-
-    std::string_view parser::field() const noexcept  {
-        return {field_.data(), field_.size()};
-    }
-
-    std::uint8_t parser::container_type() const noexcept {
-        return parser_.container_type;
     }
 
     std::uint8_t parser::value_type() const noexcept  {
         return parser_.value_type;
     }
 
-    std::uint32_t parser::array_index() const noexcept  {
+    std::uint32_t parser::value_array_index() const noexcept  {
         return parser_.array_index;
     }
 
