@@ -1,7 +1,7 @@
 .PHONY: all var clean install
 
 ENVIRON?=stage
-VERSION=1.0.0
+VERSION=1.0.1
 
 CXX?=g++
 AR?=ar
@@ -18,7 +18,6 @@ TESTORS := $(patsubst ./test/%.cpp,./${ENVIRON}/%.test,${TESTORS_SOURCES})
 all: ${TESTORS} ./${ENVIRON}/liblltoml.a | ${ENVIRON}
 
 ${ENVIRON}:
-	mkdir -p ./bin
 	mkdir -p ./${ENVIRON}
 	for name in ${TARGETS} ; \
 	do \
@@ -29,6 +28,7 @@ SOURCES := $(wildcard $(foreach target,${TARGETS},./src/${target}/*.cpp))
 DEFINES := $(foreach target,${TARGETS},./src/${target}/parser.mjs)
 PARSERS := $(foreach target,${TARGETS},./src/${target}/parser.c)
 OBJECTS := $(patsubst ./src/%.c,./${ENVIRON}/%.c.o, ${PARSERS}) $(patsubst ./src/%.cpp,./${ENVIRON}/%.cpp.o, ${SOURCES}) 
+.PHONY: ${ENVIRON} var clean install 
 
 var:
 	@echo TESTORS = [${TESTORS}]
@@ -48,9 +48,9 @@ install:
 	cp ./${ENVIRON}/liblltoml.a /data/vendor/lltoml-${VERSION}/lib
 
 ./${ENVIRON}/%.c.o: ./src/%.c | ${ENVIRON}
-	${CXX} -x c ${CFLAGS} -c -o $@ $^
+	${CXX} -x c ${CFLAGS} -c $^ -o $@
 ./${ENVIRON}/%.cpp.o: ./src/%.cpp | ${ENVIRON}
-	${CXX} ${CXXFLAGS} -c -o $@ $^
+	${CXX} ${CXXFLAGS} -c $^ -o $@
 ./src/%.c: ./src/%.mjs
 	${NODE} --experimental-modules $^
 
