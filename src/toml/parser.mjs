@@ -93,6 +93,7 @@ const        on_value_float = parser.invoke(parser.code.update("value_type", VAL
 const           value_infinite = parser.node("value_infinite");
 const        on_value_infinite = parser.invoke(parser.code.update("value_type", VALUE_TYPES["VALUE_TYPE_INFINITY"]), value_infinite);
 const           value_date = parser.node("value_date");
+const    before_value_date = parser.node("before_value_date");
 const        on_value_date = parser.invoke(parser.code.update("value_type", VALUE_TYPES["VALUE_TYPE_DATE"]), value_date);
 const     after_value_date = parser.node("after_value_date");
 // 值 - 有分隔符
@@ -251,13 +252,13 @@ value_integer
     .match("0o", on_value_oct_integer)
     .match("0b", on_value_bin_integer)
     .match("+inf", on_value_infinite)
-    // .match("-inf", on_value_infinite) // TODO 归并 -inf 与 - 的检查
+    .peek("-", before_value_date)
     .match("inf", on_value_infinite)
     .match("e-", on_value_float)
     .match("e+", on_value_float)
     .match("E-", on_value_float)
     .match("E+", on_value_float)
-    .match(["-", ":"], on_value_date)
+    .match(":", on_value_date)
     .match(".", on_value_float)
     .skipTo(value_integer);
 
@@ -280,6 +281,10 @@ value_float
     .peek([",", "]", "}", " ", "t", "#", "\r", "\n"], on_value.end(on_after_value))
     .skipTo(value_float);
 
+before_value_date
+    .match("-inf", on_value_infinite)
+    .otherwise(value_date)
+
 value_date
     .peek(" ", after_value_date) // 可能是结束符号
     .peek([",", "]", "}", "\t", "#", "\r", "\n"], on_value.end(on_after_value))
@@ -292,8 +297,8 @@ after_value_date
 // 值 - 分隔符
 // ----------------------------------------------------------------------------------------------------
 before_value_basic_string
-    .match('"""', on_value.start(value_multi_basic_string))
-    .skipTo(on_value.start(value_basic_string)); // '"'
+    .match('"""', on_value.start(value_multi_basic_string)) // match at least 
+    .otherwise(on_value.start(value_basic_string)); // '"'
 
 value_basic_string
     .peek('"', on_value.end(after_value_basic_string))
@@ -320,7 +325,7 @@ after_value_multi_basic_string
 
 before_value_raw_string
     .match("'''", on_value.start(value_multi_raw_string))
-    .skipTo(on_value.start(value_raw_string)); // "'"
+    .otherwise(on_value.start(value_raw_string));
 
 value_raw_string
     .peek("'", on_value.end(after_value_raw_string))

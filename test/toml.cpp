@@ -24,10 +24,10 @@ int main(int argc, char* argv[]) {
     std::shared_ptr<std::istream> is;
     if(argc > 1) is.reset(new std::ifstream(argv[1]));
     else is.reset(&std::cin, null_deleter<std::istream>);
-    do {
+    while(!is->eof()) {
         std::getline(*is, flr);
         flr.append("\n");
         p.parse(flr);
-    } while(true);
+    };
     return 0;
 }
