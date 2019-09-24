@@ -1,7 +1,7 @@
 .PHONY: all var clean install
 
 ENVIRON?=stage
-VERSION=1.0.1
+VERSION=1.0.2
 
 CXX?=g++
 AR?=ar

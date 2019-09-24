@@ -248,9 +248,9 @@ value_boolean
 
 value_integer
     .peek([",", "]", "}", " ", "\t", "#", "\r", "\n"], on_value.end(on_after_value))
-    .match("0x", on_value_hex_integer)
-    .match("0o", on_value_oct_integer)
-    .match("0b", on_value_bin_integer)
+    .match("x", on_value_hex_integer)
+    .match("o", on_value_oct_integer)
+    .match("b", on_value_bin_integer)
     .match("+inf", on_value_infinite)
     .peek("-", before_value_date)
     .match("inf", on_value_infinite)
