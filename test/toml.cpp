@@ -1,33 +1,50 @@
-#include "../src/toml/toml.hpp"
-#include <cstring>
-#include <iostream>
-#include <fstream>
-#include <memory>
+#include "parse_file.hpp"
+#include <toml.h>
 
-template <class T>
-void null_deleter(T* t) {}
+extern "C" {
+    int toml_parser_on_field(
+        toml_parser_t* s, const unsigned char* p,
+        const unsigned char* endp) {
+
+        std::cout << "(field: " << std::string_view(reinterpret_cast<const char*>(p), endp - p) << ") " << std::flush;
+        return 0;
+    }
+
+    int toml_parser_on_field_emit(
+        toml_parser_t* s, const unsigned char* p,
+        const unsigned char* endp) {
+
+        std::cout << "(/field) " << std::flush;
+        return 0;
+    }
+
+    int toml_parser_on_value(
+        toml_parser_t* s, const unsigned char* p,
+        const unsigned char* endp) {
+
+        std::cout << "(value: " << std::string_view(reinterpret_cast<const char*>(p), endp - p) << ") " << std::flush;
+        return 0;
+    }
+
+    int toml_parser_on_value_emit(
+        toml_parser_t* s, const unsigned char* p,
+        const unsigned char* endp) {
+
+        std::cout << "(/value) " << std::flush;
+        return 0;
+    }
+
+}
 
 int main(int argc, char* argv[]) {
-    std::string value;
-    llparse::toml::parser p({
-        /*.on_value = */[&value] (const llparse::toml::parser& p, std::string_view chunk) {
-            value.append(chunk);
-            std::cout << "= on_value: " << p.field() << " #" << p.value_array_index() << " => (" << value << ")\n";
-        },
-        /* .on_after_value = */[&value] (const llparse::toml::parser& p) {
-            // if(p.prefix() == ".a.b.e") exit(0);
-            std::cout << "= on_after_value: " << p.field() << " #" << p.value_array_index() << " => [" << value << "]@" << (int)p.value_type() << "\n";
-            value.clear();
-        },
-    });
-    std::string flr;
-    std::shared_ptr<std::istream> is;
-    if(argc > 1) is.reset(new std::ifstream(argv[1]));
-    else is.reset(&std::cin, null_deleter<std::istream>);
-    while(!is->eof()) {
-        std::getline(*is, flr);
-        flr.append("\n");
-        p.parse(flr);
-    };
+    toml_parser_t s;
+    toml_parser_init(&s);
+    
+    if(argc < 2) {
+        std::cout << "error: test source file required." << std::endl;
+        std::exit(-1);
+    }
+    parse_file p {argv[1]};
+    p.run(toml_parser_execute, &s);
     return 0;
 }

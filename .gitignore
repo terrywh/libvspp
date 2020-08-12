@@ -1,7 +1,6 @@
 .vscode
+.clangd
+gen/*
 node_modules
-src/*/*.h
-src/*/*.c
-stage
-debug
-release
+build
+compile_commands.json

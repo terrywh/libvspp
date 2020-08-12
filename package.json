@@ -2,13 +2,14 @@
   "name": "llcparser",
   "version": "1.0.0",
   "description": "",
-  "main": "index.mjs",
+  "type": "module",
+  "main": "build.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "llparse": "^6.2.0"
+    "llparse": "^6.4.0"
   }
 }

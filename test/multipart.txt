@@ -1,0 +1,11 @@
+====================
+Content-Type: text/plain; name="abc"
+Transfer-Encoding: base64
+
+VGhpcyBpcyBhIG11bHRpcGFydCBjb250ZW50Lg==
+==abc====================
+====================
+Content-Type: application/json; name="xyz"; charset="utf-8"
+
+{"x":1,"y":"2","z":3.3}
+====================--
