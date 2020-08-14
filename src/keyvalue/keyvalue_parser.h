@@ -5,7 +5,11 @@ extern "C" {
 #endif
 
 #include <stdint.h>
-#include "keyvalue_core.h"
+
+typedef enum keyvalue_error_e {
+    KEYVALUE_PARSER_ERROR_SUCCESS,
+    KEYVALUE_PARSER_ERROR_UNEXPECTED_TOKEN = 201,
+} keyvalue_error_t;
 
 typedef struct keyvalue_parser_s {
 //   int32_t _index;
@@ -18,7 +22,7 @@ typedef struct keyvalue_parser_s {
   void* data;
   void* _current;
   // example: "[]={};"
-  char seperator[6];
+  const char* seperator;
 } keyvalue_parser_t;
 
 int keyvalue_parser_init(keyvalue_parser_t* s);

@@ -21,33 +21,44 @@ endif()
 set(CMAKE_STATIC_LIBRARY_PREFIX "libparser_")
 ## multipart
 # -----------------------------------------------------------------------------
-set(MULTIPART_CORE_SOURCES ${CMAKE_SOURCE_DIR}/gen/multipart.c ${CMAKE_SOURCE_DIR}/gen/multipart_parser.c)
-set(MULTIPART_CORE_HEADERS ${CMAKE_SOURCE_DIR}/gen/multipart.h ${CMAKE_SOURCE_DIR}/gen/multipart_parser.h)
-add_custom_command(OUTPUT ${MULTIPART_CORE_SOURCES} ${MULTIPART_CORE_HEADERS}
+set(MULTIPART_SOURCES ${CMAKE_SOURCE_DIR}/gen/multipart_core.c ${CMAKE_SOURCE_DIR}/gen/multipart_parser.c)
+set(MULTIPART_HEADERS ${CMAKE_SOURCE_DIR}/gen/multipart_core.h ${CMAKE_SOURCE_DIR}/gen/multipart_parser.h)
+add_custom_command(OUTPUT ${MULTIPART_SOURCES} ${MULTIPART_HEADERS}
     COMMAND /data/server/node/bin/node ${CMAKE_SOURCE_DIR}/build.js multipart
     DEPENDS ${CMAKE_SOURCE_DIR}/src/multipart/multipart.js)
-add_library(multipart STATIC ${MULTIPART_CORE_SOURCES})
-set_property(TARGET multipart PROPERTY PUBLIC_HEADER ${MULTIPART_CORE_HEADERS})
+add_library(multipart STATIC ${MULTIPART_SOURCES} src/multipart/multipart.cpp)
+set_property(TARGET multipart PROPERTY PUBLIC_HEADER ${MULTIPART_HEADERS})
 install(TARGETS multipart LIBRARY
     PUBLIC_HEADER DESTINATION "include/parser")
 
-add_executable(test_multipart test/multipart.cpp)
-target_include_directories(test_multipart
+add_executable(multipart_test_raw test/multipart_raw.cpp ${MULTIPART_SOURCES})
+target_include_directories(multipart_test_raw
     PUBLIC ${CMAKE_SOURCE_DIR}/gen)
-target_link_libraries(test_multipart multipart)
+
+add_executable(multipart_test test/multipart.cpp)
+target_include_directories(multipart_test
+        PUBLIC ${CMAKE_SOURCE_DIR}/gen
+        PUBLIC ${CMAKE_SOURCE_DIR}/src/multipart)
+target_link_libraries(multipart_test multipart)
 ## keyvalue
 # -----------------------------------------------------------------------------
-set(KEYVALUE_CORE_SOURCES src/keyvalue/keyvalue.c)
-set(KEYVALUE_CORE_HEADERS src/keyvalue/keyvalue.h)
-add_library(keyvalue_core STATIC ${KEYVALUE_CORE_SOURCES})
-set_property(TARGET keyvalue_core PROPERTY PUBLIC_HEADER ${KEYVALUE_CORE_HEADERS})
-install(TARGETS keyvalue_core LIBRARY
+set(KEYVALUE_SOURCES src/keyvalue/keyvalue.cpp src/keyvalue/keyvalue_parser.c)
+set(KEYVALUE_HEADERS src/keyvalue/keyvalue.h src/keyvalue/keyvalue_parser.h)
+add_library(keyvalue STATIC ${KEYVALUE_SOURCES})
+set_property(TARGET keyvalue PROPERTY PUBLIC_HEADER ${KEYVALUE_HEADERS})
+install(TARGETS keyvalue LIBRARY
     PUBLIC_HEADER DESTINATION "include/parser")
 
-add_executable(test_keyvalue test/keyvalue.cpp)
-target_include_directories(test_keyvalue
+# 测试原始解析器
+add_executable(keyvalue_test_raw test/keyvalue_raw.cpp src/keyvalue/keyvalue_parser.c)
+target_include_directories(keyvalue_test_raw
     PUBLIC ${CMAKE_SOURCE_DIR}/src/keyvalue)
-target_link_libraries(test_keyvalue keyvalue_core)
+# 测试上层包装
+add_executable(keyvalue_test test/keyvalue.cpp)
+target_include_directories(keyvalue_test
+    PUBLIC ${CMAKE_SOURCE_DIR}/src/keyvalue)
+target_link_libraries(keyvalue_test keyvalue)
+
 ## toml
 # -----------------------------------------------------------------------------
 set(TOML_CORE_SOURCES ${CMAKE_SOURCE_DIR}/gen/toml_parser.c)

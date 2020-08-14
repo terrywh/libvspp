@@ -21,7 +21,7 @@ function append(c, i) {
 export function create(options) {
     if(options.errors instanceof Array) 
         options.errors = Object.fromEntries(options.errors.map(function(v, i) {
-            return [options.name.toUpperCase() + "_ERROR_" + v.toUpperCase(), 200 + i]
+            return [options.name.toUpperCase() + "_ERROR_" + v.toUpperCase(), i > 0 ? 200 + i : i]
         }))
     
     const __parser = new llparse.LLParse(options.name)

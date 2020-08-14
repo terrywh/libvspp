@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "keyvalue.h"
+#include "keyvalue_parser.h"
 
 typedef enum keyvalue_parser_status_e {
     keyvalue_parser_error = 0,
@@ -34,8 +34,10 @@ typedef enum keyvalue_parser_seperator_e {
 
 typedef int (*keyvalue_parser_span_cb)(keyvalue_parser_t* state, const unsigned char* p, const unsigned char* endp);
 
-int keyvalue_parser_field(keyvalue_parser_t* state, const unsigned char* p, const unsigned char* endp);
-int keyvalue_parser_value(keyvalue_parser_t* state, const unsigned char* p, const unsigned char* endp);
+int keyvalue_parser_on_field(keyvalue_parser_t* state, const unsigned char* p, const unsigned char* endp);
+int keyvalue_parser_on_field_emit(keyvalue_parser_t* state, const unsigned char* p, const unsigned char* endp);
+int keyvalue_parser_on_value(keyvalue_parser_t* state, const unsigned char* p, const unsigned char* endp);
+int keyvalue_parser_on_value_emit(keyvalue_parser_t* state, const unsigned char* p, const unsigned char* endp);
 
 int keyvalue_parser_init(keyvalue_parser_t* state) {
     memset(state, 0, sizeof(keyvalue_parser_t));
@@ -78,23 +80,26 @@ int32_t keyvalue_parser_run(keyvalue_parser_t* state, const unsigned char* p, co
             break;
         case keyvalue_parser_status_field_start:
         keyvalue_parser_status_field_start:
-            span_start(keyvalue_parser_field);
+            span_start(keyvalue_parser_on_field);
             state->_current = (void*)(uintptr_t)keyvalue_parser_status_field;
             // 本次数据需要立即进行处理
         case keyvalue_parser_status_field:
         keyvalue_parser_status_field:
             if(keyvalue_parser_if_seperator(state, keyvalue_parser_seperator_after_field)) {
                 if(keyvalue_parser_is_seperator(state, keyvalue_parser_seperator_after_field, i)) {
-                    span_end(keyvalue_parser_field);
+                    span_end(keyvalue_parser_on_field);
+                    keyvalue_parser_on_field_emit(state, i, endp);
                     state->_current = (void*)(uintptr_t)keyvalue_parser_status_after_field;
                 }
             }
             else if(isspace(*i)) {
-                span_end(keyvalue_parser_field);
+                span_end(keyvalue_parser_on_field);
+                keyvalue_parser_on_field_emit(state, i, endp);
                 state->_current = (void*)(uintptr_t)keyvalue_parser_status_after_field;
             }
             else if(keyvalue_parser_is_seperator(state, keyvalue_parser_seperator_equal, i)) {
-                span_end(keyvalue_parser_field);
+                span_end(keyvalue_parser_on_field);
+                keyvalue_parser_on_field_emit(state, i, endp);
                 state->_current = (void*)(uintptr_t)keyvalue_parser_status_equal;
                 goto keyvalue_parser_status_equal; // 本次数据需要立即进行处理
             }
@@ -129,23 +134,26 @@ int32_t keyvalue_parser_run(keyvalue_parser_t* state, const unsigned char* p, co
             break;
         case keyvalue_parser_status_value_start:
         keyvalue_parser_status_value_start:
-            span_start(keyvalue_parser_value);
+            span_start(keyvalue_parser_on_value);
             state->_current = (void*)(uintptr_t)keyvalue_parser_status_value;
             // 本次数据需要立即进行处理
         case keyvalue_parser_status_value:
         keyvalue_parser_status_value:
             if(keyvalue_parser_if_seperator(state, keyvalue_parser_seperator_after_value)) {
                 if(keyvalue_parser_is_seperator(state, keyvalue_parser_seperator_after_value, i)) {
-                    span_end(keyvalue_parser_value);
+                    span_end(keyvalue_parser_on_value);
+                    keyvalue_parser_on_value_emit(state, i, endp);
                     state->_current = (void*)(uintptr_t)keyvalue_parser_status_after_value;
                 }
             }
             else if(isspace(*i)) {
-                span_end(keyvalue_parser_value);
+                span_end(keyvalue_parser_on_value);
+                keyvalue_parser_on_value_emit(state, i, endp);
                 state->_current = (void*)(uintptr_t)keyvalue_parser_status_after_value;
             }
             else if(keyvalue_parser_is_seperator(state, keyvalue_parser_seperator_delimiter, i)) {
-                span_end(keyvalue_parser_value);
+                span_end(keyvalue_parser_on_value);
+                keyvalue_parser_on_value_emit(state, i, endp);
                 state->_current = (void*)(uintptr_t)keyvalue_parser_status_delimiter;
                 goto keyvalue_parser_status_delimiter; // 本次数据需要立即进行处理
             }
