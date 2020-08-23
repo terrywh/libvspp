@@ -1,12 +1,14 @@
-#include "parse_file.hpp"
-#include "../src/multipart_parser.h"
+#include "multipart.hpp"
+#include <iostream>
+#include <string_view>
 
 extern "C" {
     int multipart_parser_on_field(
         multipart_parser_t* s, const unsigned char* p,
         const unsigned char* endp) {
         
-        std::cout << "(field: " << std::string_view(reinterpret_cast<const char*>(p), endp - p) << ") ";
+        auto self = reinterpret_cast<parser::basic_multipart_parser*>(s->data);
+        self->on_field(std::string_view(reinterpret_cast<const char*>(p), endp - p));
         return 0;
     }
 
@@ -14,7 +16,8 @@ extern "C" {
         multipart_parser_t* s, const unsigned char* p,
         const unsigned char* endp) {
         
-        std::cout << "(/field) ";
+        auto self = reinterpret_cast<parser::basic_multipart_parser*>(s->data);
+        self->on_field_emit();
         return 0;
     }
 
@@ -22,32 +25,35 @@ extern "C" {
         multipart_parser_t* s, const unsigned char* p,
         const unsigned char* endp) {
 
-        
-        std::cout << "(value: " << std::string_view(reinterpret_cast<const char*>(p), endp - p) << ") ";
+        auto self = reinterpret_cast<parser::basic_multipart_parser*>(s->data);
+        self->on_value(std::string_view(reinterpret_cast<const char*>(p), endp - p));
         return 0;
     }
 
     int multipart_parser_on_value_emit(
         multipart_parser_t* s, const unsigned char* p,
         const unsigned char* endp) {
-        
-        std::cout << "(/value) ";
+
+        auto self = reinterpret_cast<parser::basic_multipart_parser*>(s->data);
+        self->on_value_emit();
         return 0;
     }
 
     int multipart_parser_on_data(
         multipart_parser_t* s, const unsigned char* p,
         const unsigned char* endp) {
-
-        std::cout << "(data: " << std::string_view(reinterpret_cast<const char*>(p), endp - p) << ") ";
+        
+        auto self = reinterpret_cast<parser::basic_multipart_parser*>(s->data);
+        self->on_data(std::string_view(reinterpret_cast<const char*>(p), endp - p));
         return 0;
     }
 
     int multipart_parser_on_data_emit(
         multipart_parser_t* s, const unsigned char* p,
         const unsigned char* endp) {
-        
-        std::cout << "(/data) ";
+
+        auto self = reinterpret_cast<parser::basic_multipart_parser*>(s->data);
+        self->on_data_emit();
         return 0;
     }
 
@@ -55,21 +61,7 @@ extern "C" {
         multipart_parser_t* s, const unsigned char* p,
         const unsigned char* endp) {
 
-        std::cout << "(complete) ";
+        // std::cout << "(complete) ";
         return 0;
     }
-}
-
-int main(int argc, char* argv[]) {
-    multipart_parser_t s;
-    multipart_parser_init(&s);
-    s.boundary = const_cast<char*>("====================");
-    
-    if(argc < 2) {
-        std::cout << "error: test source file required." << std::endl;
-        std::exit(-1);
-    }
-    parse_file p {argv[1]};
-    p.run(multipart_parser_execute, &s);
-    return 0;
 }

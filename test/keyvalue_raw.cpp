@@ -1,6 +1,5 @@
 #include "parse_file.hpp"
-#include <cstring>
-#include <keyvalue_parser.h>
+#include "../src/keyvalue_parser.h"
 
 extern "C" {
     int keyvalue_parser_on_field(

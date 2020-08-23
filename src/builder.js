@@ -324,12 +324,12 @@ export function create(options) {
         parser(entry_name) {
             let key = options.name + "_" + entry_name
             return {
-                async output(__gen) {
+                async output(__src) {
                     const art = __parser.build(__parser_nodes[key], {"c": {
                         "header": options.name,
                     }});
-                    await fs.writeFile(__gen + "/" + options.name + ".h", art.header)
-                    await fs.writeFile(__gen + "/" + options.name + ".c", art.c)
+                    await fs.writeFile(__src + "/" + options.name + ".h", art.header)
+                    await fs.writeFile(__src + "/" + options.name + ".c", art.c)
                 }
             }
         },

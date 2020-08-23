@@ -1,6 +1,10 @@
 .vscode
 .clangd
-gen/*
+src/multipart_parser.h
+src/multipart_parser.c
+src/multipart_core.*
+src/toml_parser.*
+src/yaml_parser.*
 node_modules
 build
 compile_commands.json
