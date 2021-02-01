@@ -1,5 +1,5 @@
 {
-  "name": "llcparser",
+  "name": "libparser",
   "version": "1.0.0",
   "description": "",
   "type": "module",
@@ -8,8 +8,9 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
-    "llparse": "^6.4.0"
+    "llparse": "^7.1.0",
+    "tree-sitter-cli": "^0.18.0"
   }
 }

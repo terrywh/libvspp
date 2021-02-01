@@ -48,7 +48,7 @@ export function create(options) {
         },
         /**
          * 返回指定名称的节点
-         * @return {llparse.source.node.Node}
+         * @return {llparse.source.node.Match}
          */
         NODE(key) {
             key = options.name + "_" + key

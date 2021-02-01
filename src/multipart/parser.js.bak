@@ -1,6 +1,6 @@
 "use strict";
 
-import {create} from "./builder.js"
+import {create} from "../builder.js"
 
 const ERRORS = [
     "SUCCESS",

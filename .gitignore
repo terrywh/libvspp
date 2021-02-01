@@ -1,5 +1,6 @@
 .vscode
 .clangd
+.xmake
 src/multipart_parser.h
 src/multipart_parser.c
 src/multipart_core.*
