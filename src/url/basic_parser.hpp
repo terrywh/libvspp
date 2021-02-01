@@ -4,12 +4,21 @@
 #include <regex>
 #include <string_view>
 
-namespace vspp { namespace url {
+namespace vsp { namespace url {
     // 用于支持 URL 解析
-    class url_parser {
+    template <class T>
+    struct basic_parser_regex {
+        static std::regex r1;
+    };
+
+    class basic_parser {
     public:
-        // 用于解析如：scheme://user:pass@host:port/path?query 形式的 URL 解析
-        url_parser(std::string_view url);
+        //
+        basic_parser(std::string_view url) {
+            if(!std::regex_match(url.begin(), url.end(), m_, basic_parser_regex<basic_parser>::r1)) {
+                throw std::runtime_error("failed to parse url: ill-formed");
+            }
+        }
 
         inline std::string_view scheme() const {
             return gm(m_[1]);
@@ -38,8 +47,10 @@ namespace vspp { namespace url {
         std::string_view gm(const std::csub_match& m) const {
             return {m.first, m.second - m.first};
         }
-        static std::regex r_;
+        
     };
+    template <class T>
+    std::regex basic_parser_regex<T>::r1 { R"regex(^([^:]+)://(([^:@]+)(:([^@]+))?@)?([^:/]+)(:([^/]+))?(/([^\?]+))?(\?(.+))?$)regex" };
 }}
 
 #endif // VSP_URL_BASIC_PARSER_H

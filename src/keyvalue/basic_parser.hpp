@@ -1,5 +1,5 @@
-#ifndef CTP_KEYVALUE_BASIC_PARSER_H
-#define CTP_KEYVALUE_BASIC_PARSER_H
+#ifndef VSP_KEYVALUE_BASIC_PARSER_H
+#define VSP_KEYVALUE_BASIC_PARSER_H
 
 #include "delimiter.hpp"
 #include <string_view>
@@ -174,4 +174,4 @@ namespace vsp { namespace keyvalue {
 } }
 
 
-#endif // CTP_KEYVALUE_BASIC_PARSER_H
+#endif // VSP_KEYVALUE_BASIC_PARSER_H

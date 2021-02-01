@@ -1,5 +1,5 @@
-#ifndef PARSER_MULTIPART_H
-#define PARSER_MULTIPART_H
+#ifndef VSP_MULTIPART_BASIC_PARSER_H
+#define VSP_MULTIPART_BASIC_PARSER_H
 
 #include <string_view>
 #include <cassert>
@@ -217,4 +217,4 @@ namespace vsp { namespace multipart {
     const char basic_parser<Handler>::remedy_[] = {'\r','\n','-','-'};
 }}
 
-#endif // PARSER_MULTIPART_H
+#endif // VSP_MULTIPART_BASIC_PARSER_H

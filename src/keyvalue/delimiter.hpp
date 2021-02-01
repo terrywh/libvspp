@@ -1,5 +1,5 @@
-#ifndef CTP_KEYVALUE_DELIMITER_H
-#define CTP_KEYVALUE_DELIMITER_H
+#ifndef VSP_KEYVALUE_DELIMITER_H
+#define VSP_KEYVALUE_DELIMITER_H
 
 #include <cstring> // for memcpy
 
@@ -18,4 +18,4 @@ namespace vsp { namespace keyvalue {
     };
 }}
 
-#endif // CTP_KEYVALUE_DELIMITER_H
+#endif // VSP_KEYVALUE_DELIMITER_H
