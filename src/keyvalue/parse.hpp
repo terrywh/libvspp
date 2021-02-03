@@ -1,10 +1,10 @@
-#ifndef VSP_KEYVALUE_PARSE_H
-#define VSP_KEYVALUE_PARSE_H
+#ifndef VSPP_KEYVALUE_PARSE_H
+#define VSPP_KEYVALUE_PARSE_H
 
 #include "delimiter.hpp"
 #include "basic_parser.hpp"
 
-namespace vsp { namespace keyvalue {
+namespace vspp { namespace keyvalue {
     // 
     template <class Buffer, class Handler, typename = decltype(std::declval<Buffer>().data())>
     void parse(const Buffer& buffer, Handler&& handler, const delimiter& delim = "\0\0=\0\0&") {

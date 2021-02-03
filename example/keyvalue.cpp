@@ -17,16 +17,16 @@ struct handler {
 
 int main(int argc, char* argv[]) {
     // 1
-    vsp::keyvalue::basic_parser<handler> p1 { handler(), "[]={};"};
+    vspp::keyvalue::basic_parser<handler> p1 { handler(), "[]={};"};
     p1.parse("[aaa] = {bbb}; [a b ] = { 123 }");
     p1.end();
     // 2
-    vsp::keyvalue::basic_parser<handler> p2 { handler(), "\0\0:\0\r\n"};
+    vspp::keyvalue::basic_parser<handler> p2 { handler(), "\0\0:\0\r\n"};
     p2.parse("Field: Value\r\nField:  Key=\"value\";  Key=\"value\"; \r\n");
     // p2.end();
     // 3
-    vsp::keyvalue::parse(vsp::basic_file_reader<>{"./example/keyvalue.txt"}, handler(), "[]={};");
+    vspp::keyvalue::parse(vspp::basic_file_reader<>{"./example/keyvalue.txt"}, handler(), "[]={};");
     // 4
-    vsp::keyvalue::parse(std::string_view{"'aaa':'bbb'; 'a b': '1 2 3';"}, handler(), "'':'';");
+    vspp::keyvalue::parse(std::string_view{"'aaa':'bbb'; 'a b': '1 2 3';"}, handler(), "'':'';");
     return 0;
 }

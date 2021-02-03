@@ -1,5 +1,5 @@
-#ifndef VSP_BASIC_FILE_READER_H
-#define VSP_BASIC_FILE_READER_H
+#ifndef VSPP_BASIC_FILE_READER_H
+#define VSPP_BASIC_FILE_READER_H
 
 #include <cassert>
 #include <cstdint>
@@ -7,7 +7,7 @@
 #include <string_view>
 #include <fstream>
 
-namespace vsp {
+namespace vspp {
     //
     template <std::size_t BufferSize = 4096>
     class basic_file_reader {

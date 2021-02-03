@@ -1,9 +1,9 @@
-#ifndef VSP_MULTIPART_PARSE_H
-#define VSP_MULTIPART_PARSE_H
+#ifndef VSPP_MULTIPART_PARSE_H
+#define VSPP_MULTIPART_PARSE_H
 
 #include "basic_parser.hpp"
 
-namespace vsp { namespace multipart {
+namespace vspp { namespace multipart {
     // 
     template <class Buffer, class Handler, typename = decltype(std::declval<Buffer>().data())>
     void parse(const Buffer& buffer, Handler&& handler, std::string_view boundary) {

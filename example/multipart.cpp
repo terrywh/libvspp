@@ -19,15 +19,15 @@ struct handler {
 
 int main(int argc, char* argv[]) {
     // 1
-    // vsp::multipart::basic_parser<handler> p1(handler(), "boundary");
-    // p1.parse({"--boundary\r\n"
-    //     "Content-Disposition: form-data; name=\"field1\"\r\n\r\n"
-    //     "value1\r\n"
-    //     "--boundary\r\n"
-    //     "Content-Disposition: form-data; name=\"field2\"; filename=\"example.txt\"\r\n\r\n"
-    //     "value2\r\n"
-    //     "--boundary--"});
+    vspp::multipart::basic_parser<handler> p1(handler(), "boundary");
+    p1.parse({"--boundary\r\n"
+        "Content-Disposition: form-data; name=\"field1\"\r\n\r\n"
+        "value1\r\n"
+        "--boundary\r\n"
+        "Content-Disposition: form-data; name=\"field2\"; filename=\"example.txt\"\r\n\r\n"
+        "value2\r\n"
+        "--boundary--"});
     // 2
-    vsp::multipart::parse(vsp::basic_file_reader<>{"./example/multipart.txt"}, handler(), "123456");
+    vspp::multipart::parse(vspp::basic_file_reader<>{"./example/multipart.txt"}, handler(), "123456");
     return 0;
 }

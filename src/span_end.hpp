@@ -1,5 +1,5 @@
-#ifndef VSP_SPAN_END_H
-#define VSP_SPAN_END_H
+#ifndef VSPP_SPAN_END_H
+#define VSPP_SPAN_END_H
 
 #undef SPAN_START
 #undef SPAN_END

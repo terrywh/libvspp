@@ -1,9 +1,9 @@
-#ifndef VSP_KEYVALUE_DELIMITER_H
-#define VSP_KEYVALUE_DELIMITER_H
+#ifndef VSPP_KEYVALUE_DELIMITER_H
+#define VSPP_KEYVALUE_DELIMITER_H
 
 #include <cstring> // for memcpy
 
-namespace vsp { namespace keyvalue {
+namespace vspp { namespace keyvalue {
     struct delimiter {
         delimiter(const char* s) {
             std::memcpy(this, s, sizeof(delimiter));

@@ -1,5 +1,5 @@
-#ifndef VSP_SPAN_START_H
-#define VSP_SPAN_START_H
+#ifndef VSPP_SPAN_START_H
+#define VSPP_SPAN_START_H
 
 #define SPAN_START(state) do { \
         state_ = state; \
