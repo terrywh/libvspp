@@ -1,9 +1,9 @@
 ### LIBVSP
-`libvsp` contains various simple `cpp` parsers for parsing:
+`libvsp` is a `header-only` library contains various progressive parsers (can be use for parsing incoming network stream):
+
 1. `keyvalue`
 2. `multipart`
-3. `url`
-4. ...
+3. ...
 
 Compiler support for c++17 is required;
 
