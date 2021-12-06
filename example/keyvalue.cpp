@@ -4,9 +4,11 @@
 #include <string>
 #include "../src/keyvalue/basic_parser.hpp"
 #include "../src/keyvalue/parse.hpp"
-#include "../src/basic_file_reader.hpp"
+#include "../src/basic_reader.hpp"
+#include "../src/basic_handler.hpp"
+#include <map>
 
-struct handler {
+struct handler_type_1 {
     using field_type = std::string;
     using value_type = std::string;
     void on_entry(std::pair<field_type, value_type>&& entry) {
@@ -15,18 +17,25 @@ struct handler {
     }
 };
 
+using container_type = std::multimap<std::string, std::string>;
+using handler_type_2 = vspp::container_handler<container_type>;
+
 int main(int argc, char* argv[]) {
+    container_type m;
     // 1
-    vspp::keyvalue::basic_parser<handler> p1 { handler(), "[]={};"};
+    vspp::keyvalue::basic_parser<handler_type_1> p1 { handler_type_1(), "[]={};"};
     p1.parse("[aaa] = {bbb}; [a b ] = { 123 }");
     p1.end();
     // 2
-    vspp::keyvalue::basic_parser<handler> p2 { handler(), "\0\0:\0\r\n"};
-    p2.parse("Field: Value\r\nField:  Key=\"value\";  Key=\"value\"; \r\n");
+    vspp::keyvalue::basic_parser<handler_type_2> p2 { handler_type_2(m), "\0\0:\0\r\n"};
+    p2.parse("Field: Value\r\nField:  K1=\"v1\"; K2=\"v2\";\r\n");
+    for (auto i=m.begin(); i!=m.end(); ++i) {
+        std::cout << "[" << i->first << "] => [" << i->second << "]\n";
+    }
     // p2.end();
     // 3
-    vspp::keyvalue::parse(vspp::basic_file_reader<>{"./example/keyvalue.txt"}, handler(), "[]={};");
+    vspp::keyvalue::parse(vspp::basic_file_reader<>{"./example/keyvalue.txt"}, handler_type_1(), "[]={};");
     // 4
-    vspp::keyvalue::parse(std::string_view{"'aaa':'bbb'; 'a b': '1 2 3';"}, handler(), "'':'';");
+    vspp::keyvalue::parse(std::string_view{"'aaa':'bbb'; 'a b': '1 2 3';"}, handler_type_1(), "'':'';");
     return 0;
 }

@@ -2,6 +2,7 @@
 #define VSPP_MULTIPART_BASIC_PARSER_H
 
 #include <string_view>
+#include <type_traits>
 #include <cassert>
 #include <cstdlib> // for abort
 #include <cctype>  // for isspace
@@ -42,8 +43,8 @@ namespace vspp { namespace multipart {
         using entry_type = std::pair<typename handler_type::field_type, typename handler_type::value_type>;
         using cache_type = typename handler_type::cache_type;
 
-        basic_parser(handler_type&& handler, std::string_view boundary)
-        : handler_( std::forward<handler_type>(handler) )
+        basic_parser(handler_type handler, std::string_view boundary)
+        : handler_( handler )
         , boundary_(boundary)
         , state_(BEFORE_BOUNDARY)
         , index_(0)
@@ -187,10 +188,10 @@ namespace vspp { namespace multipart {
         
     private:
         void on_field(std::string_view field) {
-            entry_.first.append(field);
+            entry_.first.append(field.data(), field.size());
         }
         void on_value(std::string_view value) {
-            entry_.second.append(value);
+            entry_.second.append(value.data(), value.size());
         }
         void on_entry() {
             handler_.on_entry(std::move(entry_));
