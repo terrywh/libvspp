@@ -33,15 +33,19 @@ public:
     using container_type = typename std::decay<C>::type;
     using field_type = typename entry_type<typename container_type::value_type>::field_type;
     using value_type = typename entry_type<typename container_type::value_type>::value_type;
+    using cache_type = typename entry_type<typename container_type::value_type>::value_type; // 默认容器定义数据字段原值字段类型一致
 
-    explicit container_handler(C& ctr)
+    explicit container_handler(container_type& ctr)
     : ctr_(ctr) {}
 
-    container_handler(const C& ch)
+    container_handler(const container_type& ch)
     : ctr_(ch.ctr_) {}
     
     void on_entry(std::pair<field_type, value_type>&& entry) {
         ctr_.insert(ctr_.end(), std::move(entry));
+    }
+    void on_data(cache_type&& data) {
+        // 默认不存储数据字段
     }
 private:
     C& ctr_;

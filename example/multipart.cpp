@@ -1,9 +1,11 @@
 #include "../src/multipart/basic_parser.hpp"
 #include "../src/multipart/parse.hpp"
 #include "../src/basic_reader.hpp"
+#include "../src/basic_handler.hpp"
 #include <iostream>
+#include <map>
 
-struct handler {
+struct handler_type_1 {
     using field_type = std::string;
     using value_type = std::string;
     using cache_type = std::string;
@@ -17,9 +19,13 @@ struct handler {
     }
 };
 
+using container_type = std::multimap<std::string, std::string>;
+using handler_type_2 = vspp::container_handler<container_type>;
+
 int main(int argc, char* argv[]) {
+    container_type m;
     // 1
-    vspp::multipart::basic_parser<handler> p1(handler(), "boundary");
+    vspp::multipart::basic_parser<handler_type_1> p1(handler_type_1(), "boundary");
     p1.parse({"--boundary\r\n"
         "Content-Disposition: form-data; name=\"field1\"\r\n\r\n"
         "value1\r\n"
@@ -28,6 +34,9 @@ int main(int argc, char* argv[]) {
         "value2\r\n"
         "--boundary--"});
     // 2
-    vspp::multipart::parse(vspp::basic_file_reader<>{"./example/multipart.txt"}, handler(), "123456");
+    vspp::multipart::parse(vspp::basic_file_reader<>{"./example/multipart.txt"}, handler_type_2(m), "123456");
+    for (auto i=m.begin(); i!=m.end(); ++i) {
+        std::cout << "[" << i->first << "] => [" << i->second << "]\n";
+    }
     return 0;
 }
