@@ -2,10 +2,10 @@
 #include <unistd.h>
 #include <iostream>
 #include <string>
-#include "../src/keyvalue/basic_parser.hpp"
-#include "../src/keyvalue/parse.hpp"
-#include "../src/basic_reader.hpp"
-#include "../src/basic_handler.hpp"
+#include <vspp/keyvalue/basic_parser.hpp>
+#include <vspp/keyvalue/parse.hpp>
+#include <vspp/basic_reader.hpp>
+#include <vspp/basic_handler.hpp>
 #include <map>
 
 struct handler_type_1 {

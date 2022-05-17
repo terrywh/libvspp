@@ -1,7 +1,7 @@
-#include "../src/multipart/basic_parser.hpp"
-#include "../src/multipart/parse.hpp"
-#include "../src/basic_reader.hpp"
-#include "../src/basic_handler.hpp"
+#include <vspp/multipart/basic_parser.hpp>
+#include <vspp/multipart/parse.hpp>
+#include <vspp/basic_reader.hpp>
+#include <vspp/basic_handler.hpp>
 #include <iostream>
 #include <map>
 
