@@ -51,7 +51,7 @@ public:
     // 解析指定区段
     bool parse(std::string_view data) {
         char c;
-        for(int i=0;i<data.size();++i) {
+        for(std::size_t i=0;i<data.size();++i) {
             c = data[i];
             switch(state_) {
             case BEFORE_FIELD:

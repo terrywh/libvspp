@@ -59,7 +59,7 @@ namespace vspp { namespace multipart {
         // 解析文本块
         bool parse(std::string_view data) {
             char c;
-            for(int i=0;i<data.size();++i) {
+            for(std::size_t i=0;i<data.size();++i) {
                 c = data[i];
                 switch(state_) {
                 case MAYBE_BEFORE_BOUDNARY:
